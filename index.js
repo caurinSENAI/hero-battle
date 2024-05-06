@@ -104,6 +104,74 @@ app.delete("/heroes/:id", async (req, res) => {
   }
 });
 
+app.post("/battles", async (req, res) => {
+  const { hero1, hero2 } = req.body;
+
+  try {
+    const hero11 = await pool.query("SELECT * FROM heroes WHERE id = $1", [
+      hero1,
+    ]);
+    const hero22 = await pool.query("SELECT * FROM heroes WHERE id = $1", [
+      hero2,
+    ]);
+
+    const hero1Attack = hero11.rows[0].attack;
+    const hero2Attack = hero22.rows[0].attack;
+
+    let hero1Health = hero11.rows[0].health;
+    let hero2Health = hero22.rows[0].health;
+
+    let winner_id = null;
+
+    while (hero1Health > 0 && hero2Health > 0) {
+      hero2Health -= hero1Attack;
+      hero1Health -= hero2Attack;
+    }
+
+    if (hero1Health == hero2Health) {
+      winner_id = null;
+      res.json("Empate");
+    } else if (hero1Health < hero2Health) {
+      winner_id = hero22.rows[0].id;
+      res.json(`${hero22.rows[0].name} venceu`);
+    } else {
+      winner_id = hero11.rows[0].id;
+      res.json(`${hero11.rows[0].name} venceu`);
+    }
+
+    await pool.query(
+      "INSERT INTO battle (hero1_id, hero2_id, winner_id ) VALUES ($1, $2, $3)",
+      [hero1, hero2, winner_id]
+    );
+  } catch (error) {
+    console.error("Erro ao criar batalha", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/battles", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT battle.id AS id_batalha,  heroes1.name AS Heroi_1, 
+              heroes2.name AS Heroi_2, 
+              heroes3.name AS winner_name
+      FROM battle
+      LEFT JOIN heroes AS heroes1 ON battle.hero1_id = heroes1.id
+      LEFT JOIN heroes AS heroes2 ON battle.hero2_id = heroes2.id
+      LEFT JOIN heroes AS heroes3 ON battle.winner_id = heroes3.id
+    `);
+
+    res.json({
+      total: result.rowCount,
+      batalhas: result.rows,
+      vencedor: winner_id.rows[0],
+    });
+  } catch (error) {
+    console.error("Erro ao obter batalhas", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}🚀`);
 });
