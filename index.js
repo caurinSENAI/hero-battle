@@ -7,7 +7,7 @@ const PORT = 7777;
 const pool = new Pool({
   user: "postgres",
   host: "localhost",
-  database: "exercback",
+  database: "herosbattle",
   password: "ds564",
   port: 7007,
 });

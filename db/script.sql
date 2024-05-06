@@ -1,13 +1,21 @@
-CREATE DATABASE exercback;
+CREATE DATABASE herosbattle;
 
-\c exercback;
+\c herosbattle;
 
-CREATE TABLE usuarios (
-  id SERIAL PRIMARY KEY,
-  nome VARCHAR(255) NOT NULL,
-  sobrenome VARCHAR(255) NOT NULL,
-  data DATE NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  idade INT,
-  signo VARCHAR(100)
+CREATE TABLE heroes (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    health INT NOT NULL,
+    attack INT NOT NULL,
+    defense INT NOT NULL
+);
+
+CREATE TABLE battle (
+    id SERIAL PRIMARY KEY,
+    hero1_id INT NOT NULL,
+    hero2_id INT NOT NULL,
+    winner_id INT,
+    FOREIGN KEY (hero1_id) REFERENCES heroes(id),
+    FOREIGN KEY (hero2_id) REFERENCES heroes(id),
+    FOREIGN KEY (winner_id) REFERENCES heroes(id)
 );
