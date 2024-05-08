@@ -211,6 +211,24 @@ app.get("/battles", async (req, res) => {
   }
 });
 
+/* app.get("/battles/:name", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const result = await pool.query(
+      "SELECT * FROM heroes WHERE name ILIKE $1",
+      [`${name}%`]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Heroi não encontrado" });
+    } else {
+      return res.json(result.rows);
+    }
+  } catch (error) {
+    console.error("Erro ao obter heroi", error);
+    res.status(500).json({ error: error.message });
+  }
+}); */
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}🚀`);
 });
